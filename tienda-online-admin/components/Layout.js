@@ -17,7 +17,6 @@ export default function Layout({children}) {
       <Nav />
       <div className="bg-white flex-grow mt-2 mr-2 mb-2 rounded-lg p-4">
       {children}
-      <button onClick={() => signOut()} className='bg-yellow-400 p-2 m-3 px-4 rounded-lg'>Cerrar Sesión</button>
     </div>
     </div>
     
