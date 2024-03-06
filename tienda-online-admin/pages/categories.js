@@ -60,21 +60,25 @@ function Categories({swal}) {
         : 'Crear nueva categoria'}
       </label>
       <form onSubmit={saveCategory} className="flex gap-1">
-      <input 
-      className="mb-0" 
-      type="text" 
-      placeholder={'Nombre de categoria'} 
-      onChange={ev => setName(ev.target.value)}
-      value={name}/>
-      <select className="mb-0" 
-        onChange={ev => setParentCategory(ev.target.value)}
-        value={parentCategory}>
-        <option value="">Sin categoria principal</option>
-        {categories.length > 0 && categories.map(category => (
+        <div className="flex gap-1">
+
+        </div>
+        <input 
+          className="mb-0" 
+         type="text" 
+          placeholder={'Nombre de categoria'} 
+          onChange={ev => setName(ev.target.value)}
+          value={name}
+        />
+        <select className="mb-0" 
+          onChange={ev => setParentCategory(ev.target.value)}
+          value={parentCategory}>
+          <option value="">Sin categoria principal</option>
+          {categories.length > 0 && categories.map(category => (
             <option value={category._id}>{category.name}</option>
           ))}
-      </select>
-      <button type="submit" className="btn-primary py-1">Guardar</button>
+        </select>
+        <button type="submit" className="btn-primary py-1">Guardar</button>
       </form>
       <table className="basic mt-4">
         <thead>
