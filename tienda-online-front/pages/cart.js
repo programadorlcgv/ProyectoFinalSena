@@ -8,6 +8,8 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
+
+
 const ColumnsWraper = styled.div`
   display: grid;
   grid-template-columns: 1.2fr .8fr;
@@ -75,11 +77,39 @@ export default function CartPage() {
   function lessOfThisProduct(id) {
     removeProduct(id);
   }
+  async function goToPayment() {
+    const response = await axios.post('api/checkout', {
+      name,email,city,postalCode,streetAddress,country,
+      cartProducts,
+    });
+    if (response.data.url) {
+      window.location = response.data.url;
+    }
+  }
   let total = 0;
   for (const productId of cartProducts) {
     const price = products.find(p => p._id === productId)?.price || 0;
     total += price;
   }
+  
+
+  // se presenta el problema de handle error revisar 
+  if ( typeof window !== 'undefined' && window.location.href.includes('success')) {
+    return (
+      <>
+        <Header />
+        <Center>
+          <ColumnsWraper>
+            <Box>
+              <h1>Gracias por la compra!</h1>
+              <p>Se ha enviado a tu correo los detalles de la compra</p>
+            </Box>
+          </ColumnsWraper>
+        </Center>
+      </>
+    )
+  }
+
   return (
     <>
       <Header />
@@ -132,41 +162,42 @@ export default function CartPage() {
         {!!cartProducts?.length && (
           <Box>
             <h2>Información del Pedido</h2>
-            <form method="post" action="/api/checkout">
+            <Input type="text" 
+                  placeholder="Nombre" 
+                  value={name}
+                  name="name" 
+                  onChange={ev => setName(ev.target.value)} />
+            <Input type="text" 
+                  placeholder="Email" 
+                  value={email} 
+                  name="email" 
+                  onChange={ev => setEmail(ev.target.value)} />
+            <CityHolder>
               <Input type="text" 
-                    placeholder="Nombre" 
-                    value={name}
-                    name="name" 
-                    onChange={ev => setName(ev.target.value)} />
-              <Input type="text" 
-                    placeholder="Email" 
-                    value={email} 
-                    name="email" 
-                    onChange={ev => setEmail(ev.target.value)} />
-              <CityHolder>
-                <Input type="text" 
-                      placeholder="Ciudad" 
-                      value={city} 
-                      name="city"
-                      onChange={ev => setCity(ev.target.value)} />
-                <Input type="number" 
-                      placeholder="Codigo Postal" 
-                      value={postalCode} 
-                      name="postalCode" 
-                      onChange={ev => setPostalCode(ev.target.value)} />
-              </CityHolder>
-              <Input type="text" 
-                    placeholder="Dirección del Domicilio" 
-                    value={streetAddress} 
-                    name="streetAddress"
-                    onChange={ev => setStreetAddress(ev.target.value)} />
-              <Input type="text" 
-                    placeholder="Pais" 
-                    value={country} 
-                    name="country"
-                    onChange={ev => setCountry(ev.target.value)} />
-              <Button black block type="submit">Continuar con el Pago</Button>
-            </form>
+                    placeholder="Ciudad" 
+                    value={city} 
+                    name="city"
+                    onChange={ev => setCity(ev.target.value)} />
+              <Input type="number" 
+                    placeholder="Codigo Postal" 
+                    value={postalCode} 
+                    name="postalCode" 
+                    onChange={ev => setPostalCode(ev.target.value)} />
+            </CityHolder>
+            <Input type="text" 
+                  placeholder="Dirección del Domicilio" 
+                  value={streetAddress} 
+                  name="streetAddress"
+                  onChange={ev => setStreetAddress(ev.target.value)} />
+            <Input type="text" 
+                  placeholder="Pais" 
+                  value={country} 
+                  name="country"
+                  onChange={ev => setCountry(ev.target.value)} />
+            <Button black block 
+                    onClick={goToPayment}>
+              Continuar con el Pago
+            </Button>
           </Box>
         )}
       </ColumnsWraper>
