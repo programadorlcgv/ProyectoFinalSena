@@ -29,7 +29,7 @@ export default async function handler(req,res) {
         price_data: {
           currency: 'COP',
           product_data: {name: productInfo.title},
-          unit_amount: quantity * productInfo.price ,  //precio que se muestra de la plataforma de pago
+          unit_amount: quantity * productInfo.price * 100 ,  //precio que se muestra de la plataforma de pago
         }
       });
     }
