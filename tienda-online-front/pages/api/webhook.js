@@ -43,3 +43,4 @@ export const config = {
 
 // sweet-idol-exalt-quiet
 // acct_1Oz4rlFhVzet0EQZ
+// add in console stripe listen --forward-to localhost:3001/api/webhook  for listen event buy
