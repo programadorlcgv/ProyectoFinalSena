@@ -33,7 +33,7 @@ export default function Header() {
     <StyledHeader>
       <Center>
         <Wrapper>
-          <Logo href={'/'}>Tienda Online</Logo>
+          <Logo href={'/'}>PC Componetes</Logo>
             <StyledNav>
               <NavLink href={'/'}>Inicio</NavLink>
               <NavLink href={'/products'}>Todos los productos</NavLink>
