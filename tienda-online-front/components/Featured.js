@@ -1,33 +1,49 @@
+import Center from "@/components/Center";
 import styled from "styled-components";
-import Center from "./Center";
-import Button from "./Button";
-import ButtonLink from "./ButtonLink";
-import CartIcon from "./icons/CartIcon";
-import { useContext } from "react";
-import { CartContext } from "./CartContext";
+import Button from "@/components/Button";
+import ButtonLink from "@/components/ButtonLink";
+import CartIcon from "@/components/icons/CartIcon";
+import {useContext} from "react";
+import {CartContext} from "@/components/CartContext";
 
 const Bg = styled.div`
   background-color: #222;
-  color: #fff;
+  color:#fff;
   padding: 20px 0;
-  display: flex;
-  align-items: center;
 `;
 const Title = styled.h1`
-  margin: 0;
-  font-weight: normal;
-  font-size: 2.5rem;
+  margin:0;
+  font-weight:normal;
+  font-size:1.5rem;
+  @media screen and (min-width: 768px) {
+    font-size:3rem;
+  }
 `;
 const Desc = styled.p`
- color: #aaa;
- font-size: .8rem;
+  color:#aaa;
+  font-size:.8rem;
 `;
 const ColumnsWrapper = styled.div`
-  display: grid; 
-  grid-template-columns: 1.1fr .9fr;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 40px;
   img{
-    width: 100%;
+    max-width: 100%;
+    max-height: 350px;
+    display: block;
+    margin: 0 auto;
+  }
+  div:nth-child(1) {
+    order: 2;
+  }
+  @media screen and (min-width: 768px) {
+    grid-template-columns: 1.1fr 0.9fr;
+    div:nth-child(1) {
+      order: 0;
+    }
+    img{
+      max-width: 100%;
+    }
   }
 `;
 const Column = styled.div`
@@ -35,14 +51,13 @@ const Column = styled.div`
   align-items: center;
 `;
 const ButtonsWrapper = styled.div`
- display: flex;
- gap: 10px;
- margin-top: 25px;
- align-items: center;
+  display: flex;
+  gap:10px;
+  margin-top:25px;
 `;
 
 export default function Featured({product}) {
-  const {addProduct} = useContext(CartContext)
+  const {addProduct} = useContext(CartContext);
   function addFeaturedToCart() {
     addProduct(product._id);
   }
@@ -51,23 +66,24 @@ export default function Featured({product}) {
       <Center>
         <ColumnsWrapper>
           <Column>
-          <div>
-            <Title>{product.title}</Title>
+            <div>
+              <Title>{product.title}</Title>
               <Desc>{product.description}</Desc>
               <ButtonsWrapper>
-                <ButtonLink href={'/products/'+product._id} outline={1} white={1} >Leer mas</ButtonLink>
-                <Button  white onClick={addFeaturedToCart}>
+                <ButtonLink href={'/product/'+product._id} outline={1} white={1}>Leer más</ButtonLink>
+                <Button white onClick={addFeaturedToCart}>
                   <CartIcon />
-                  Añadir al carrito
+                  Adñadir al carrito
                 </Button>
               </ButtonsWrapper>
-          </div>
+            </div>
           </Column>
           <Column>
-            <img src="https://lcgv-next-ecommerce.s3.amazonaws.com/1709741460434-.png"></img>
+            <img src="https://lcgv-next-ecommerce.s3.amazonaws.com/1709741460434-.png" alt=""/>
           </Column>
         </ColumnsWrapper>
       </Center>
+
     </Bg>
-  )
+  );
 }
