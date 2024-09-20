@@ -10,6 +10,7 @@ import Button from "@/components/Button";
 import CartIcon from "@/components/icons/CartIcon";
 import {useContext} from "react";
 import {CartContext} from "@/components/CartContext";
+import FlyingButton from "@/components/FlyingButton";
 
 const ColWrapper = styled.div`
   display: grid;
@@ -47,9 +48,9 @@ export default function ProductPage({product}) {
                 <Price>${product.price}</Price>
               </div>
               <div>
-                <Button primary onClick={() => addProduct(product._id)}>
-                  <CartIcon />Add to cart
-                </Button>
+                <FlyingButton main _id={product._id} src={product.images?.[0]}>
+                  <CartIcon />Añadir al carrito
+                </FlyingButton>
               </div>
             </PriceRow>
           </div>
