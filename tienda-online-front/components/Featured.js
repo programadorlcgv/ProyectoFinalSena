@@ -1,11 +1,9 @@
 import Center from "@/components/Center";
 import styled from "styled-components";
-import Button from "@/components/Button";
 import ButtonLink from "@/components/ButtonLink";
 import CartIcon from "@/components/icons/CartIcon";
-import {useContext} from "react";
-import {CartContext} from "@/components/CartContext";
 import FlyingButton from "./FlyingButton";
+import {RevealWrapper} from 'next-reveal'
 
 const Bg = styled.div`
   background-color: #222;
@@ -58,26 +56,31 @@ const ButtonsWrapper = styled.div`
 `;
 
 export default function Featured({product}) {
-  const {addProduct} = useContext(CartContext);
+  
   return (
     <Bg>
       <Center>
         <ColumnsWrapper>
           <Column>
             <div>
+              <RevealWrapper origin={'left'} delay={0}>
               <Title>{product.title}</Title>
               <Desc>{product.description}</Desc>
-              <ButtonsWrapper>
-                <ButtonLink href={'/product/'+product._id} outline={1} white={1}>Leer más</ButtonLink>
-                <FlyingButton white _id={product._id} src={product.images?.[0]}>
-                  <CartIcon />
-                  Adñadir al carrito
-                </FlyingButton>
-              </ButtonsWrapper>
+                <ButtonsWrapper>
+                  <ButtonLink href={'/product/'+product._id} outline={1} white={1}>Leer más</ButtonLink>
+                  <FlyingButton white _id={product._id} src={product.images?.[0]}>
+                    <CartIcon />
+                    Adñadir al carrito
+                  </FlyingButton>
+                </ButtonsWrapper>
+              </RevealWrapper>
             </div>
           </Column>
           <Column>
+           <RevealWrapper delay={0}>
             <img src="https://lcgv-next-ecommerce.s3.amazonaws.com/1709741460434-.png" alt=""/>
+           </RevealWrapper>
+            
           </Column>
         </ColumnsWrapper>
       </Center>
