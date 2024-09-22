@@ -26,7 +26,7 @@ const ColumnsWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   gap: 40px;
-  img{
+  img.main{
     max-width: 100%;
     max-height: 350px;
     display: block;
@@ -78,7 +78,10 @@ export default function Featured({product}) {
           </Column>
           <Column>
            <RevealWrapper delay={0}>
-            <img src="https://lcgv-next-ecommerce.s3.amazonaws.com/1709741460434-.png" alt=""/>
+            <img 
+              className={'main'}
+              src="https://lcgv-next-ecommerce.s3.amazonaws.com/1709741460434-.png" 
+              alt=""/>
            </RevealWrapper>
             
           </Column>
