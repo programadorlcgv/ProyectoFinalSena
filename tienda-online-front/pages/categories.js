@@ -1,11 +1,15 @@
-import Center from "@/components/Center";
 import Header from "@/components/Header";
+import Center from "@/components/Center";
+import {Category} from "@/models/Category";
+import {Product} from "@/models/Product";
 import ProductBox from "@/components/ProductBox";
-import { Category } from "@/models/Category";
-import { Product } from "@/models/Product";
-import Link from "next/link";
 import styled from "styled-components";
-import {RevealWrapper} from 'next-reveal'
+import Link from "next/link";
+import {RevealWrapper} from "next-reveal";
+import {mongooseConnect} from "@/lib/mongoose";
+import {getServerSession} from "next-auth";
+import {authOptions} from "@/pages/api/auth/[...nextauth]";
+import {WishedProduct} from "@/models/WishedProduct";
 
 const CategoryGrid = styled.div`
   display: grid;
@@ -31,13 +35,12 @@ const CategoryTitle = styled.div`
     display: inline-block;
   }
 `;
-
-const CategoriesWrapper = styled.div`
+const CategoryWrapper = styled.div`
   margin-bottom: 40px;
 `;
 
 const ShowAllSquare = styled(Link)`
- background-color: #ddd;
+  background-color: #ddd;
   height: 160px;
   border-radius: 10px;
   align-items:center;
@@ -47,43 +50,44 @@ const ShowAllSquare = styled(Link)`
   text-decoration: none;
 `;
 
-export default function CategoriesPage({mainCategories, categoriesProducts}) {
+export default function CategoriesPage({mainCategories,categoriesProducts,wishedProducts=[]}) {
   return (
     <>
-    <Header />
-    <Center>
-    {mainCategories.map(cat => (
-      <CategoriesWrapper>
-        <CategoryTitle>
-          <h2>{cat.name}</h2>
-          <div>
-            <Link href={'/category/'+cat._id}>Mostrar Todos</Link>
-          </div>
-        </CategoryTitle>
-        <CategoryGrid>
-          {categoriesProducts[cat._id].map((p,index) => (
-            <RevealWrapper delay={index*50}>
-              <ProductBox {...p} />
-            </RevealWrapper>
-          ))}
-          <RevealWrapper delay={categoriesProducts[cat._id].length*50}>
-          <ShowAllSquare href={'/category/'+cat._id}>
-            Mostrar Todos  &rarr;
-          </ShowAllSquare>
-          </RevealWrapper>
-        </CategoryGrid>
-      </CategoriesWrapper>
-    ))}
-    </Center>
-    
+      <Header />
+      <Center>
+        {mainCategories.map(cat => (
+          <CategoryWrapper>
+            <CategoryTitle>
+              <h2>{cat.name}</h2>
+              <div>
+                <Link href={'/category/'+cat._id}>Mostrar Todos</Link>
+              </div>
+            </CategoryTitle>
+            <CategoryGrid>
+              {categoriesProducts[cat._id].map((p,index) => (
+                <RevealWrapper delay={index*50}>
+                  <ProductBox {...p} wished={wishedProducts.includes(p._id)} />
+                </RevealWrapper>
+              ))}
+              <RevealWrapper delay={categoriesProducts[cat._id].length*50}>
+                <ShowAllSquare href={'/category/'+cat._id}>
+                  Mostrar Todos &rarr;
+                </ShowAllSquare>
+              </RevealWrapper>
+            </CategoryGrid>
+          </CategoryWrapper>
+        ))}
+      </Center>
     </>
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx) {
+  await mongooseConnect();
   const categories = await Category.find();
   const mainCategories = categories.filter(c => !c.parent);
-  const categoriesProducts = {}; //catId => [products]
+  const categoriesProducts = {}; // catId => [products]
+  const allFetchedProductsId = [];
   for (const mainCat of mainCategories) {
     const mainCatId = mainCat._id.toString();
     const childCatIds = categories
@@ -91,8 +95,18 @@ export async function getServerSideProps() {
       .map(c => c._id.toString());
     const categoriesIds = [mainCatId, ...childCatIds];
     const products = await Product.find({category: categoriesIds}, null, {limit:3,sort:{'_id':-1}});
+    allFetchedProductsId.push(...products.map(p => p._id.toString()))
     categoriesProducts[mainCat._id] = products;
   }
+
+
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
+  const wishedProducts = session?.user
+    ? await WishedProduct.find({
+      userEmail:session?.user.email,
+      product: allFetchedProductsId,
+    })
+    : [];
 
   return {
     props: {
@@ -100,7 +114,7 @@ export async function getServerSideProps() {
         JSON.stringify(mainCategories)
       ),
       categoriesProducts: JSON.parse(JSON.stringify(categoriesProducts)),
+      wishedProducts: wishedProducts.map(i => i.product.toString()),
     },
-
   };
 }
