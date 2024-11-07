@@ -41,6 +41,6 @@ export const config = {
   api: {bodyParser:false,}
 };
 
-// sweet-idol-exalt-quiet
+// trump-breeze-softer-trendy
 // acct_1Oz4rlFhVzet0EQZ
-// add in console stripe listen --forward-to localhost:3001/api/webhook  for listen event buy
+// add in console stripe listen --forward-to localhost:4000/api/webhook  for listen event buy

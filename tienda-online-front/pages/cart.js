@@ -1,25 +1,38 @@
-import Button from "@/components/Button";
-import { CartContext } from "@/components/CartContext";
-import Center from "@/components/Center";
 import Header from "@/components/Header";
-import Input from "@/components/Input";
-import Table from "@/components/Table";
-import axios from "axios";
-import { RevealWrapper } from "next-reveal";
-import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
+import Center from "@/components/Center";
+import Button from "@/components/Button";
+import {useContext, useEffect, useState} from "react";
+import {CartContext} from "@/components/CartContext";
+import axios from "axios";
+import Table from "@/components/Table";
+import Input from "@/components/Input";
+import {RevealWrapper} from "next-reveal";
 import {useSession} from "next-auth/react";
 
-
-
-const ColumnsWraper = styled.div`
-display: grid;
-grid-template-columns: 1fr;
-@media screen and (min-width: 768px) {
-  grid-template-columns: 1.2fr .8fr;
-}
-gap: 40px;
-margin-top: 40px;
+const ColumnsWrapper = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  @media screen and (min-width: 768px) {
+    grid-template-columns: 1.2fr .8fr;
+  }
+  gap: 40px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  table thead tr th:nth-child(3),
+  table tbody tr td:nth-child(3),
+  table tbody tr.subtotal td:nth-child(2){
+    text-align: right;
+  }
+  table tr.subtotal td{
+    padding: 15px 0;
+  }
+  table tbody tr.subtotal td:nth-child(2){
+    font-size: 1.2rem;
+  }
+  tr.total td{
+    font-weight: bold;
+  }
 `;
 
 const Box = styled.div`
@@ -29,7 +42,8 @@ const Box = styled.div`
 `;
 
 const ProductInfoCell = styled.td`
-  paddin: 10px 0;
+  padding: 10px 0;
+  button{padding:0 !important;}
 `;
 
 const ProductImageBox = styled.div`
@@ -56,14 +70,13 @@ const ProductImageBox = styled.div`
   }
 `;
 
-
 const QuantityLabel = styled.span`
-padding: 0 15px;
-display: block;
-@media screen and (min-width: 768px) {
-  display: inline-block;
-  padding: 0 10px;
-}
+  padding: 0 15px;
+  display: block;
+  @media screen and (min-width: 768px) {
+    display: inline-block;
+    padding: 0 6px;
+  }
 `;
 
 const CityHolder = styled.div`
@@ -71,24 +84,24 @@ const CityHolder = styled.div`
   gap: 5px;
 `;
 
-
 export default function CartPage() {
-  const {cartProducts, addProduct,removeProduct,clearCart} = useContext(CartContext);
+  const {cartProducts,addProduct,removeProduct,clearCart} = useContext(CartContext);
   const {data:session} = useSession();
-  const [products, setProducts] = useState([]);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [city, setCity] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [streetAddress, setStreetAddress] = useState('');
-  const [country, setCountry] = useState('');
+  const [products,setProducts] = useState([]);
+  const [name,setName] = useState('');
+  const [email,setEmail] = useState('');
+  const [city,setCity] = useState('');
+  const [postalCode,setPostalCode] = useState('');
+  const [streetAddress,setStreetAddress] = useState('');
+  const [country,setCountry] = useState('');
   const [isSuccess,setIsSuccess] = useState(false);
+  const [shippingFee, setShippingFee] = useState(null);
   useEffect(() => {
     if (cartProducts.length > 0) {
       axios.post('/api/cart', {ids:cartProducts})
-      .then(response => {
-        setProducts(response.data)
-      })
+        .then(response => {
+          setProducts(response.data);
+        })
     } else {
       setProducts([]);
     }
@@ -101,7 +114,9 @@ export default function CartPage() {
       setIsSuccess(true);
       clearCart();
     }
-    
+    axios.get('/api/settings?name=shippingFee').then(res => {
+      setShippingFee(res.data.value);
+    })
   }, []);
   useEffect(() => {
     if (!session) {
@@ -123,7 +138,7 @@ export default function CartPage() {
     removeProduct(id);
   }
   async function goToPayment() {
-    const response = await axios.post('api/checkout', {
+    const response = await axios.post('/api/checkout', {
       name,email,city,postalCode,streetAddress,country,
       cartProducts,
     });
@@ -131,49 +146,49 @@ export default function CartPage() {
       window.location = response.data.url;
     }
   }
-  let total = 0;
+  let productsTotal = 0;
   for (const productId of cartProducts) {
     const price = products.find(p => p._id === productId)?.price || 0;
-    total += price;
+    productsTotal += price;
   }
-  
+
   if (isSuccess) {
     return (
       <>
         <Header />
         <Center>
-          <ColumnsWraper>
+          <ColumnsWrapper>
             <Box>
-              <h1>Gracias por la compra!</h1>
-              <p>Se ha enviado a tu correo los detalles de la compra</p>
+              <h1>Gracias por tu Compra!</h1>
+              <p>Le enviaremos un correo electrónico cuando se envíe su pedido.
+              </p>
             </Box>
-          </ColumnsWraper>
+          </ColumnsWrapper>
         </Center>
       </>
-    )
+    );
   }
-
   return (
     <>
       <Header />
       <Center>
-      <ColumnsWraper>
-      <RevealWrapper delay={0}>
-        <Box>
-          <h2>Carrito de compras</h2>
-            {!cartProducts?.length && (
-              <div>Tu carrito esta Vacio</div>
-            )}
-            {products?.length > 0 && (
-              <Table>
-                <thead>
+        <ColumnsWrapper>
+          <RevealWrapper delay={0}>
+            <Box>
+              <h2>Carrito</h2>
+              {!cartProducts?.length && (
+                <div>Su carrito esta vacio</div>
+              )}
+              {products?.length > 0 && (
+                <Table>
+                  <thead>
                   <tr>
-                    <th>Producto</th>
+                    <th>Productos</th>
                     <th>Cantidad</th>
                     <th>Precio</th>
                   </tr>
-                </thead>
-                <tbody>
+                  </thead>
+                  <tbody>
                   {products.map(product => (
                     <tr>
                       <ProductInfoCell>
@@ -183,73 +198,81 @@ export default function CartPage() {
                         {product.title}
                       </ProductInfoCell>
                       <td>
-                        <Button 
+                        <Button
                           onClick={() => lessOfThisProduct(product._id)}>-</Button>
                         <QuantityLabel>
-                        {cartProducts.filter(id => id === product._id).length}
+                          {cartProducts.filter(id => id === product._id).length}
                         </QuantityLabel>
-                        <Button 
+                        <Button
                           onClick={() => moreOfThisProduct(product._id)}>+</Button>
-                      </td> 
-                      <td>${cartProducts.filter(id => id === product._id).length * product.price}</td>
-                        </tr>
+                      </td>
+                      <td>
+                        ${cartProducts.filter(id => id === product._id).length * product.price}
+                      </td>
+                    </tr>
                   ))}
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td>${total}</td>
+                  <tr className="subtotal">
+                    <td colSpan={2}>Productos</td>
+                    <td>${productsTotal}</td>
                   </tr>
-                </tbody>
-              </Table>
-            )}
-        </Box>
-      </RevealWrapper>
-        {!!cartProducts?.length && (
-          <RevealWrapper delay={100}>
-            <Box>
-              <h2>Información del Pedido</h2>
-              <Input type="text" 
-                    placeholder="Nombre" 
-                    value={name}
-                    name="name" 
-                    onChange={ev => setName(ev.target.value)} />
-              <Input type="text" 
-                    placeholder="Email" 
-                    value={email} 
-                    name="email" 
-                    onChange={ev => setEmail(ev.target.value)} />
-              <CityHolder>
-                <Input type="text" 
-                      placeholder="Ciudad" 
-                      value={city} 
-                      name="city"
-                      onChange={ev => setCity(ev.target.value)} />
-                <Input type="number" 
-                      placeholder="Codigo Postal" 
-                      value={postalCode} 
-                      name="postalCode" 
-                      onChange={ev => setPostalCode(ev.target.value)} />
-              </CityHolder>
-              <Input type="text" 
-                    placeholder="Dirección del Domicilio" 
-                    value={streetAddress} 
-                    name="streetAddress"
-                    onChange={ev => setStreetAddress(ev.target.value)} />
-              <Input type="text" 
-                    placeholder="Pais" 
-                    value={country} 
-                    name="country"
-                    onChange={ev => setCountry(ev.target.value)} />
-              <Button black block 
-                      onClick={goToPayment}>
-                Continuar con el Pago
-              </Button>
+                  <tr className="subtotal">
+                    <td colSpan={2}>Envio</td>
+                    <td>${shippingFee}</td>
+                  </tr>
+                  <tr className="subtotal total">
+                    <td colSpan={2}>Total</td>
+                    <td>${productsTotal + parseInt(shippingFee || 0)}</td>
+                  </tr>
+                  </tbody>
+                </Table>
+              )}
             </Box>
           </RevealWrapper>
-          
-        )}
-      </ColumnsWraper>
-      </Center> 
+          {!!cartProducts?.length && (
+            <RevealWrapper delay={100}>
+              <Box>
+                <h2>Informacion del Pedido</h2>
+                <Input type="text"
+                       placeholder="Name"
+                       value={name}
+                       name="name"
+                       onChange={ev => setName(ev.target.value)} />
+                <Input type="text"
+                       placeholder="Email"
+                       value={email}
+                       name="email"
+                       onChange={ev => setEmail(ev.target.value)}/>
+                <CityHolder>
+                  <Input type="text"
+                         placeholder="City"
+                         value={city}
+                         name="city"
+                         onChange={ev => setCity(ev.target.value)}/>
+                  <Input type="text"
+                         placeholder="Postal Code"
+                         value={postalCode}
+                         name="postalCode"
+                         onChange={ev => setPostalCode(ev.target.value)}/>
+                </CityHolder>
+                <Input type="text"
+                       placeholder="Street Address"
+                       value={streetAddress}
+                       name="streetAddress"
+                       onChange={ev => setStreetAddress(ev.target.value)}/>
+                <Input type="text"
+                       placeholder="Country"
+                       value={country}
+                       name="country"
+                       onChange={ev => setCountry(ev.target.value)}/>
+                <Button black block
+                        onClick={goToPayment}>
+                  Continuar con el Pago
+                </Button>
+              </Box>
+            </RevealWrapper>
+          )}
+        </ColumnsWrapper>
+      </Center>
     </>
-  )
+  );
 }
