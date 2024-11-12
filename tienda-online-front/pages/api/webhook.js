@@ -41,6 +41,6 @@ export const config = {
   api: {bodyParser:false,}
 };
 
-// trump-breeze-softer-trendy
-// acct_1Oz4rlFhVzet0EQZ
+
+// stripe login
 // add in console stripe listen --forward-to localhost:4000/api/webhook  for listen event buy
